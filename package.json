@@ -1,5 +1,5 @@
 {
-  "name": "nextapp",
+  "name": "muachungco",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,9 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.523.0",
+    "mongoose": "^9.2.4",
     "next": "16.1.6",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "tailwind-merge": "^3.3.0",
+    "zmp-sdk": "^2.51.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
