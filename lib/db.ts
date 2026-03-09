@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+// Import models to ensure they are registered before any queries, preventing MissingSchemaError on Vercel
+import '@/lib/models/User';
+import '@/lib/models/Deal';
+
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI && process.env.npm_lifecycle_event !== 'build') {
