@@ -3,6 +3,8 @@ import dbConnect from '@/lib/db';
 import Deal from '@/lib/models/Deal';
 import User from '@/lib/models/User';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
     try {
         await dbConnect();

@@ -2,13 +2,15 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Deal from '@/lib/models/Deal';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnect();
-        const { id } = params;
+        const { id } = await params;
 
         // In a real app, authorize the user to ensure only the creator can close it
         // const body = await request.json();

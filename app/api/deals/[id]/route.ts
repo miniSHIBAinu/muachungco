@@ -2,13 +2,15 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Deal from '@/lib/models/Deal';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         await dbConnect();
-        const { id } = params;
+        const { id } = await params;
 
         const deal = await Deal.findById(id)
             .populate('creatorId', 'name avatar zaloId')

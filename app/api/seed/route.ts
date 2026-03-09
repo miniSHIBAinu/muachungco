@@ -21,13 +21,14 @@ export async function GET() {
         // Insert deals if none exist
         const count = await Deal.countDocuments();
         if (count === 0) {
-            for (const mockDeal of MOCK_DEALS) {
+            for (const item of MOCK_DEALS) {
+                const mockDeal = item as any;
                 // Map mock data structure to Mongoose schema
                 await Deal.create({
                     creatorId: user._id,
                     productName: mockDeal.product.name,
                     productImage: mockDeal.product.image,
-                    milestones: mockDeal.milestones.map(m => ({
+                    milestones: mockDeal.milestones.map((m: any) => ({
                         minParticipants: m.requiredUsers,
                         discountPercent: m.discountPercent
                     })),

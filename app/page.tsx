@@ -21,11 +21,17 @@ export default async function HomePage() {
   const activeDeals = dealsDocs.map((d: any) => {
     return {
       id: d._id.toString(),
+      title: d.productName || 'Mua Chung Deal',
+      productName: d.productName,
+      productImage: d.productImage,
+      category: 'Deal Hot',
       creator: {
         id: d.creatorId?._id?.toString() || '',
         name: d.creatorId?.name || 'User',
         avatar: d.creatorId?.avatar || ''
       },
+      creatorId: d.creatorId?._id?.toString() || '',
+      creatorName: d.creatorId?.name || 'User',
       product: {
         id: 'p_' + d._id, // mock product id for now
         name: d.productName,
@@ -33,13 +39,17 @@ export default async function HomePage() {
         originalPrice: 100000 // mock original price
       },
       milestones: d.milestones.map((m: any) => ({
-        requiredUsers: m.minParticipants,
-        discountPercent: m.discountPercent
+        id: m._id?.toString() || '',
+        minParticipants: m.minParticipants,
+        discountPercent: m.discountPercent,
+        requiredUsers: m.minParticipants // Alias for backward compatibility if needed
       })),
       deadline: d.deadline,
       status: d.status,
-      participants: d.participants.map((p: any) => p.toString()),
-      currentUsers: d.participants?.length || 0
+      participants: d.participants?.map((p: any) => p.toString()) || [],
+      currentUsers: d.participants?.length || 0,
+      createdAt: d.createdAt || new Date(),
+      shareUrl: `https://muachung.co/deals/${d._id}`
     };
   });
 

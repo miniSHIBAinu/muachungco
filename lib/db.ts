@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
-if (!MONGODB_URI) {
+if (!MONGODB_URI && process.env.npm_lifecycle_event !== 'build') {
     throw new Error(
         'Please define the MONGODB_URI environment variable inside .env.local'
     );
@@ -20,6 +20,10 @@ if (!cached) {
 }
 
 async function dbConnect() {
+    if (!MONGODB_URI && process.env.npm_lifecycle_event === 'build') {
+        return null;
+    }
+
     if (cached.conn) {
         return cached.conn;
     }
