@@ -4,6 +4,7 @@ import FlashBanner from "@/components/home/FlashBanner";
 import CategoryRow from "@/components/home/CategoryRow";
 import Link from "next/link";
 import dbConnect from "@/lib/db";
+import User from "@/lib/models/User";
 import Deal from "@/lib/models/Deal";
 
 export const dynamic = 'force-dynamic';
