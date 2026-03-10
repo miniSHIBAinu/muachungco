@@ -71,15 +71,17 @@ export async function GET(request: Request) {
             await user.save();
         }
 
-        const response = NextResponse.redirect(new URL('/account', url.origin));
-        response.cookies.set('muachung_session', user._id.toString(), {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/'
-        });
+        // Generate a cryptographically secure 1-time login token
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+        const loginToken = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
 
-        return response;
+        user.loginToken = loginToken;
+        await user.save();
+
+        // Redirect to the Sync endpoint instead of setting cookie directly
+        const syncUrl = new URL(`/api/auth/sync?token=${loginToken}`, url.origin);
+        return NextResponse.redirect(syncUrl);
 
     } catch (error: any) {
         console.error("OAuth Callback Error:", error);

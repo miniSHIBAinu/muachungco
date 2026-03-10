@@ -6,6 +6,7 @@ export interface IUser extends Document {
     avatar?: string;
     phone?: string;
     role: 'user' | 'admin';
+    loginToken?: string;
     createdAt: Date;
 }
 
@@ -16,6 +17,7 @@ const UserSchema = new Schema(
         avatar: { type: String },
         phone: { type: String },
         role: { type: String, enum: ['user', 'admin'], default: 'user' },
+        loginToken: { type: String }
     },
     {
         timestamps: true,
