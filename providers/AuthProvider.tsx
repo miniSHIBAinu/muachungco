@@ -64,16 +64,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     avatar: userInfo.avatar,
                 };
             } catch (sdkError) {
-<<<<<<< HEAD
                 console.warn('Zalo Mini App SDK failed even though inside Zalo. Falling back...', sdkError);
-                window.location.href = '/api/auth/zalo/login';
-                return;
-=======
-                console.warn('Zalo Mini App SDK not available or failed. Redirecting to standard Web OAuth flow...');
                 // Fallback to standard web browser OAuth 2 flow
                 window.location.href = '/api/auth/zalo/login';
                 return; // halt execution here, auth callback route will handle the rest
->>>>>>> feature/phase-12-next-big-thing
             }
 
             const res = await fetch('/api/auth/zalo', {
