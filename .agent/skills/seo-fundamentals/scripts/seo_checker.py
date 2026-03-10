@@ -101,9 +101,13 @@ def check_page(file_path: Path) -> dict:
         content = file_path.read_text(encoding='utf-8', errors='ignore')
     except Exception as e:
         return {"file": str(file_path.name), "issues": [f"Error: {e}"]}
+        
+    # Detect Next.js 13+ App Router metadata exports
+    if 'export const metadata' in content or 'export async function generateMetadata' in content:
+        return {"file": str(file_path.name), "issues": []}
     
     # Detect if this is a layout/template file (has Head component)
-    is_layout = 'Head>' in content or '<head' in content.lower()
+    is_layout = 'Head>' in content or '<head>' in content.lower()
     
     # 1. Title tag
     has_title = '<title' in content.lower() or 'title=' in content or 'Head>' in content

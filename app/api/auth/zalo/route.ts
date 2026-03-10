@@ -15,14 +15,26 @@ export async function POST(request: Request) {
 
         await dbConnect();
 
+        console.log("\n=== 🔑 THÔNG BÁO CHO ADMIN ===");
+        console.log("Zalo ID của tài khoản vừa đăng nhập là:", zaloId);
+        console.log("Nếu đây là nick của bạn, hãy copy dải số trên và dán vào ADMIN_ZALO_ID trong .env.local");
+        console.log("===============================\n");
+
         // Upsert user based on Zalo ID
         let user = await User.findOne({ zaloId });
+        const isAdmin = process.env.ADMIN_ZALO_ID === zaloId;
+        const role = isAdmin ? 'admin' : 'user';
+
         if (!user) {
-            user = await User.create({ zaloId, name, avatar, phone });
+            user = await User.create({ zaloId, name, avatar, phone, role });
         } else {
             user.name = name;
             user.avatar = avatar;
             if (phone) user.phone = phone;
+            // Upgrade to admin if matching
+            if (isAdmin && user.role !== 'admin') {
+                user.role = 'admin';
+            }
             await user.save();
         }
 
