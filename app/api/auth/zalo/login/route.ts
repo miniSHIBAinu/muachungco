@@ -9,7 +9,8 @@ export async function GET(request: Request) {
     }
 
     const url = new URL(request.url);
-    const redirectUri = encodeURIComponent(`${url.origin}/api/auth/zalo/callback`);
+    const safeOrigin = url.origin.includes('localhost') ? url.origin : url.origin.replace('http://', 'https://');
+    const redirectUri = encodeURIComponent(`${safeOrigin}/api/auth/zalo/callback`);
 
     // Create the OAuth authorization URL
     // We request 'oauth' and 'profile' permissions minimally

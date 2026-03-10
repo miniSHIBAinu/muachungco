@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
-    const redirectUri = `${url.origin}/api/auth/zalo/callback`;
+    const safeOrigin = url.origin.includes('localhost') ? url.origin : url.origin.replace('http://', 'https://');
+    const redirectUri = `${safeOrigin}/api/auth/zalo/callback`;
 
     if (!code) {
         return NextResponse.redirect(new URL('/account?error=NoCode_ZaloLogin', url.origin));
