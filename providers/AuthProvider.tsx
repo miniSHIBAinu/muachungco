@@ -42,12 +42,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const loginWithZalo = async () => {
         try {
-            // The ZMP SDK automatically mocks login if not in Zalo, preventing the catch block.
-            // We must explicitly check the User Agent.
-            const isZaloApp = typeof navigator !== 'undefined' && /Zalo/i.test(navigator.userAgent);
+            // The ZMP SDK hangs infinitely if called from a standard Zalo chat webview.
+            // Also it's only meant to run when packaged and hosted on Zalo's h5.zdn.vn servers for Mini Apps.
+            // Therefore, if the user is on our public web domains, we MUST force the Web OAuth flow.
+            const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+            const isPublicWebApp = hostname.includes('vercel.app') || hostname.includes('muachung.co');
 
-            if (!isZaloApp) {
-                console.log('Not inside Zalo App. Redirecting to standard Web OAuth flow...');
+            if (isPublicWebApp) {
+                console.log('Public Web App detected. Bypassing SDK and using Web OAuth 2.0 flow...');
                 window.location.href = '/api/auth/zalo/login';
                 return;
             }
