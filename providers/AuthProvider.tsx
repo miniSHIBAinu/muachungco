@@ -42,23 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const loginWithZalo = async () => {
         try {
-            // App ID is a public OAuth client ID (not a secret), safe to hardcode as fallback
-            const ZALO_APP_ID_FALLBACK = '2277543135012941336';
-            const appId = process.env.NEXT_PUBLIC_ZALO_APP_ID || ZALO_APP_ID_FALLBACK;
+            const ZALO_APP_ID = '2277543135012941336';
+            // Always use the canonical domain registered with Zalo — never derive from window.location
+            // because muachungco.vercel.app is NOT a verified redirect URI on Zalo Developer Console
+            const CANONICAL_REDIRECT_URI = encodeURIComponent('https://app.muachung.co/api/auth/zalo/callback');
 
-            // The ZMP SDK hangs infinitely if called from a standard Zalo chat webview.
-            // Also it's only meant to run when packaged and hosted on Zalo's h5.zdn.vn servers for Mini Apps.
-            // Therefore, if the user is on our public web domains, we MUST force the Web OAuth flow.
             const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
             const isPublicWebApp = hostname.includes('vercel.app') || hostname.includes('muachung.co');
 
-            if (isPublicWebApp || hostname.includes('localhost')) {
-                console.log('Public Web App detected. Bypassing SDK and using Web OAuth 2.0 flow direct link...');
-                const safeOrigin = window.location.origin.includes('localhost') ? window.location.origin : window.location.origin.replace('http://', 'https://');
-                const redirectUri = encodeURIComponent(`${safeOrigin}/api/auth/zalo/callback`);
-                const zaloAuthUrl = `https://oauth.zaloapp.com/v4/permission?app_id=${appId}&redirect_uri=${redirectUri}&state=login`;
-
-                // Direct assignment works better than a 302 redirect for iOS Safari Universal Links
+            if (isPublicWebApp) {
+                const zaloAuthUrl = `https://oauth.zaloapp.com/v4/permission?app_id=${ZALO_APP_ID}&redirect_uri=${CANONICAL_REDIRECT_URI}&state=login`;
                 window.location.href = zaloAuthUrl;
                 return;
             }
@@ -76,12 +69,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 };
             } catch (sdkError) {
                 console.warn('Zalo Mini App SDK failed even though inside Zalo. Falling back...', sdkError);
-                // Fallback to standard web browser OAuth 2 flow
-                const safeOrigin = window.location.origin.includes('localhost') ? window.location.origin : window.location.origin.replace('http://', 'https://');
-                const redirectUri = encodeURIComponent(`${safeOrigin}/api/auth/zalo/callback`);
-                const zaloAuthUrl = `https://oauth.zaloapp.com/v4/permission?app_id=${appId}&redirect_uri=${redirectUri}&state=login`;
+                const ZALO_APP_ID = '2277543135012941336';
+                const CANONICAL_REDIRECT_URI = encodeURIComponent('https://app.muachung.co/api/auth/zalo/callback');
+                const zaloAuthUrl = `https://oauth.zaloapp.com/v4/permission?app_id=${ZALO_APP_ID}&redirect_uri=${CANONICAL_REDIRECT_URI}&state=login`;
                 window.location.href = zaloAuthUrl;
-                return; // halt execution here, auth callback route will handle the rest
+                return;
             }
 
             const res = await fetch('/api/auth/zalo', {
