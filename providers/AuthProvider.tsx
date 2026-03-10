@@ -42,9 +42,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const loginWithZalo = async () => {
         try {
+            // The ZMP SDK automatically mocks login if not in Zalo, preventing the catch block.
+            // We must explicitly check the User Agent.
+            const isZaloApp = typeof navigator !== 'undefined' && /Zalo/i.test(navigator.userAgent);
+
+            if (!isZaloApp) {
+                console.log('Not inside Zalo App. Redirecting to standard Web OAuth flow...');
+                window.location.href = '/api/auth/zalo/login';
+                return;
+            }
+
             let zaloProfile;
             try {
-                // Try to use true Zalo Mini App SDK
+                // Try to use true Zalo Mini App SDK (Only runs properly inside Zalo App)
                 const { login, getUserInfo } = await import('zmp-sdk/apis');
                 await login({});
                 const { userInfo } = await getUserInfo({});
@@ -54,10 +64,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     avatar: userInfo.avatar,
                 };
             } catch (sdkError) {
-                console.warn('Zalo Mini App SDK not available or failed. Redirecting to standard Web OAuth flow...');
-                // Fallback to standard web browser OAuth 2 flow
+                console.warn('Zalo Mini App SDK failed even though inside Zalo. Falling back...', sdkError);
                 window.location.href = '/api/auth/zalo/login';
-                return; // halt execution here, auth callback route will handle the rest
+                return;
             }
 
             const res = await fetch('/api/auth/zalo', {
