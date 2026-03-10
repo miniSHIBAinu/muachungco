@@ -42,12 +42,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const loginWithZalo = async () => {
         try {
-            const appId = process.env.NEXT_PUBLIC_ZALO_APP_ID;
-            if (!appId) {
-                console.error('Missing NEXT_PUBLIC_ZALO_APP_ID in environment variables');
-                alert('Lỗi cấu hình đăng nhập. Vui lòng liên hệ hỗ trợ.');
-                return;
-            }
+            // App ID is a public OAuth client ID (not a secret), safe to hardcode as fallback
+            const ZALO_APP_ID_FALLBACK = '2277543135012941336';
+            const appId = process.env.NEXT_PUBLIC_ZALO_APP_ID || ZALO_APP_ID_FALLBACK;
 
             // The ZMP SDK hangs infinitely if called from a standard Zalo chat webview.
             // Also it's only meant to run when packaged and hosted on Zalo's h5.zdn.vn servers for Mini Apps.
