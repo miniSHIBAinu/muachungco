@@ -28,6 +28,7 @@ export async function GET(request: Request) {
                 app_id: appId!,
                 code,
                 grant_type: 'authorization_code',
+                redirect_uri: redirectUri,
             }),
         });
 
