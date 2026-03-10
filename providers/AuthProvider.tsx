@@ -54,12 +54,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     avatar: userInfo.avatar,
                 };
             } catch (sdkError) {
-                console.warn('Zalo SDK not available or failed. Using mock info for local dev.', sdkError);
-                zaloProfile = {
-                    zaloId: 'zalo_12345',
-                    name: 'Nguyễn Văn A (Mock)',
-                    avatar: 'https://i.pravatar.cc/150?img=11',
-                };
+                console.warn('Zalo Mini App SDK not available or failed. Redirecting to standard Web OAuth flow...');
+                // Fallback to standard web browser OAuth 2 flow
+                window.location.href = '/api/auth/zalo/login';
+                return; // halt execution here, auth callback route will handle the rest
             }
 
             const res = await fetch('/api/auth/zalo', {
