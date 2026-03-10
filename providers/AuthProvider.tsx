@@ -42,15 +42,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const loginWithZalo = async () => {
         try {
+            const appId = process.env.NEXT_PUBLIC_ZALO_APP_ID;
+            if (!appId) {
+                console.error('Missing NEXT_PUBLIC_ZALO_APP_ID in environment variables');
+                alert('Lỗi cấu hình đăng nhập. Vui lòng liên hệ hỗ trợ.');
+                return;
+            }
+
             // The ZMP SDK hangs infinitely if called from a standard Zalo chat webview.
             // Also it's only meant to run when packaged and hosted on Zalo's h5.zdn.vn servers for Mini Apps.
             // Therefore, if the user is on our public web domains, we MUST force the Web OAuth flow.
             const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
             const isPublicWebApp = hostname.includes('vercel.app') || hostname.includes('muachung.co');
 
-            if (isPublicWebApp) {
-                console.log('Public Web App detected. Bypassing SDK and using Web OAuth 2.0 flow...');
-                window.location.href = '/api/auth/zalo/login';
+            if (isPublicWebApp || hostname.includes('localhost')) {
+                console.log('Public Web App detected. Bypassing SDK and using Web OAuth 2.0 flow direct link...');
+                const safeOrigin = window.location.origin.includes('localhost') ? window.location.origin : window.location.origin.replace('http://', 'https://');
+                const redirectUri = encodeURIComponent(`${safeOrigin}/api/auth/zalo/callback`);
+                const zaloAuthUrl = `https://oauth.zaloapp.com/v4/permission?app_id=${appId}&redirect_uri=${redirectUri}&state=login`;
+
+                // Direct assignment works better than a 302 redirect for iOS Safari Universal Links
+                window.location.href = zaloAuthUrl;
                 return;
             }
 
@@ -68,7 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } catch (sdkError) {
                 console.warn('Zalo Mini App SDK failed even though inside Zalo. Falling back...', sdkError);
                 // Fallback to standard web browser OAuth 2 flow
-                window.location.href = '/api/auth/zalo/login';
+                const safeOrigin = window.location.origin.includes('localhost') ? window.location.origin : window.location.origin.replace('http://', 'https://');
+                const redirectUri = encodeURIComponent(`${safeOrigin}/api/auth/zalo/callback`);
+                const zaloAuthUrl = `https://oauth.zaloapp.com/v4/permission?app_id=${appId}&redirect_uri=${redirectUri}&state=login`;
+                window.location.href = zaloAuthUrl;
                 return; // halt execution here, auth callback route will handle the rest
             }
 
